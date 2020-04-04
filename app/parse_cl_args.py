@@ -1,5 +1,5 @@
 import argparse
-from typing import Dict, Iterator
+from typing import Iterator
 import datetime as dt
 import logging
 from dataclasses import dataclass
@@ -14,9 +14,6 @@ class DatesData:
 
 
 def get_date_range(date_a: dt.date, date_b: dt.date) -> Iterator[dt.date]:
-    """
-    Return iterator of iterative range of dates between the arguments
-    """
     one_day = dt.timedelta(days=1)
     current = date_a
     while current <= date_b:
@@ -25,9 +22,6 @@ def get_date_range(date_a: dt.date, date_b: dt.date) -> Iterator[dt.date]:
 
 
 def get_last_monday(date: dt.date) -> dt.date:
-    """
-    Return the date of last Monday
-    """
     last_mon = date - dt.timedelta(days=date.weekday())
     return last_mon
 

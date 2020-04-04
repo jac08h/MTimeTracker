@@ -1,7 +1,5 @@
-import pytest
 import datetime as dt
-from argparse import Namespace
-from parse_cl_args import process_date_args, get_args
+from app.parse_cl_args import process_date_args, get_args
 
 today = dt.date.today()
 
