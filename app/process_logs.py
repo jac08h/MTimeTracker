@@ -2,13 +2,16 @@ from typing import List
 import datetime as dt
 import re
 from TimeLog import TimeLog
+from pathlib import Path
 
-CATEGORIES_DELIMETER = '-'
 times_pattern = re.compile(r"(\d?\d):(\d?\d)")
 categories_pattern = re.compile(r"([a-z]+)")
 
 
-def read_logfile(filename: str) -> List[TimeLog]:
+def read_logfile(date:dt.date, logs_directory:str) -> List[TimeLog]:
+    # construct filename
+    logs_directory = Path(logs_directory)
+    filename = logs_directory / date.strftime("%d_%m_%y.txt")
     time_logs = []
     with open(filename) as log:
         for line in log.readlines():
@@ -19,13 +22,14 @@ def read_logfile(filename: str) -> List[TimeLog]:
             end_time = dt.time(hour=end_hour, minute=end_minute)
 
             categories = re.findall(categories_pattern, line)  # allows for 0 categories
-            new_time_log = TimeLog(start=start_time, end=end_time, categories=categories)
+            new_time_log = TimeLog(date=date, start=start_time, end=end_time, categories=categories)
             time_logs.append(new_time_log)
 
     return time_logs
 
 
 if __name__ == '__main__':
-    logs = read_logfile('../time_logs/03_04_2020.txt')
+    d = dt.date(year=2020, month=4, day=3)
+    logs = read_logfile(d, '../time_logs')
     for log in logs:
         print(log)

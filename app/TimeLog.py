@@ -3,7 +3,8 @@ from typing import List
 
 
 class TimeLog:
-    def __init__(self, start: dt.time, end: dt.time, categories: List[str]):
+    def __init__(self, date:dt.date, start: dt.time, end: dt.time, categories: List[str]):
+        self.date = date
         self.start = start
         self.end = end
         self.categories = categories

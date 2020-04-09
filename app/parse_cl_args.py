@@ -3,8 +3,14 @@ from typing import Iterator
 import datetime as dt
 import logging
 from dataclasses import dataclass
+import re
 
 logger = logging.getLogger(__name__)
+
+# readibility - the script doesn't work with dates going back to 20th century nor it is expected to be relevant when the next millenium approaches
+# I wouldn't mind if I was wrong, though
+CURRENT_MILLENIUM = 2000
+date_pattern = re.compile(r"(\d\d).(\d\d).(\d\d)")
 
 
 @dataclass
@@ -28,8 +34,8 @@ def get_last_monday(date: dt.date) -> dt.date:
 
 def get_args(args) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument('-sd', '--start_date', type=str, help='Date in DD-MM-YYYY format')
-    parser.add_argument('-ed', '--end_date', type=str, help='Date in  DD-MM-YYYY format')
+    parser.add_argument('-sd', '--start_date', type=str, help='Date in DD-MM-YY format')
+    parser.add_argument('-ed', '--end_date', type=str, help='Date in  DD-MM-YY format')
     parser.add_argument('-t', '--today', help='Today', action='store_true')
     parser.add_argument('-ty', '--this_year', help='This year', action='store_true')
     parser.add_argument('-tm', '--this_month', help='This month', action='store_true')
@@ -59,15 +65,21 @@ def process_date_args(args: argparse.Namespace) -> DatesData:
         d = DatesData(title='This Year', daterange=get_date_range(first_in_year, today))
 
     elif args.start_date:
-        day, month, year = [int(i) for i in args.start_date.split('-')]
+        extracted_numbers = re.findall(date_pattern, args.start_date)
+        day, month, year_last_two_digits = [int(i) for i in extracted_numbers[0]]
+        year = CURRENT_MILLENIUM + year_last_two_digits
         start_date = dt.date(year, month, day)
+
         if args.end_date:
-            day, month, year = [int(i) for i in args.end_date.split('-')]
+            extracted_numbers = re.findall(date_pattern, args.end_date)
+            day, month, year_last_two_digits = [int(i) for i in extracted_numbers[0]]
+            year = CURRENT_MILLENIUM + year_last_two_digits
             end_date = dt.date(year, month, day)
-            d = DatesData(title=f"{args.start_date} -> {args.end_date}", daterange=get_date_range(start_date, end_date))
+            d = DatesData(title=f"{start_date.strftime('%d-%m-%y')} -> {end_date.strftime('%d-%m-%y')}",
+                          daterange=get_date_range(start_date, end_date))
 
         else:
-            d = DatesData(title=args.start_date, daterange=get_date_range(start_date, start_date))
+            d = DatesData(title=start_date.strftime('%d-%m-%y'), daterange=get_date_range(start_date, start_date))
 
     else:
         logger.error('Invalid arguments. See -h for usage.')
