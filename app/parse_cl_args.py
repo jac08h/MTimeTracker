@@ -7,16 +7,18 @@ import re
 
 logger = logging.getLogger(__name__)
 
-# readibility - the script doesn't work with dates going back to 20th century nor it is expected to be relevant when the next millenium approaches
-# I wouldn't mind if I was wrong, though
 CURRENT_MILLENIUM = 2000
 date_pattern = re.compile(r"(\d\d).(\d\d).(\d\d)")
 
 
 @dataclass
-class DatesData:
+class DateRange:
     title: str
     daterange: Iterator[dt.date]
+
+
+def empty_iterator() -> Iterator[None]:
+    yield from ()
 
 
 def get_date_range(date_a: dt.date, date_b: dt.date) -> Iterator[dt.date]:
@@ -45,24 +47,22 @@ def get_args(args) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
-def process_date_args(args: argparse.Namespace) -> DatesData:
-    # trading possibility of calculating unusued variable if the specific date is entered
-    # to improve readability
+def process_date_args(args: argparse.Namespace) -> DateRange:
     today = dt.date.today()
     if args.today:
-        d = DatesData(title='Today', daterange=get_date_range(today, today))
+        daterange_from_args = DateRange(title='Today', daterange=get_date_range(today, today))
 
     elif args.this_week:
         last_monday = get_last_monday(today)
-        d = DatesData(title='This Week', daterange=get_date_range(last_monday, today))
+        daterange_from_args = DateRange(title='This Week', daterange=get_date_range(last_monday, today))
 
     elif args.this_month:
         first_in_month = dt.date(year=today.year, month=today.month, day=1)
-        d = DatesData(title='This Month', daterange=get_date_range(first_in_month, today))
+        daterange_from_args = DateRange(title='This Month', daterange=get_date_range(first_in_month, today))
 
     elif args.this_year:
         first_in_year = dt.date(year=today.year, month=1, day=1)
-        d = DatesData(title='This Year', daterange=get_date_range(first_in_year, today))
+        daterange_from_args = DateRange(title='This Year', daterange=get_date_range(first_in_year, today))
 
     elif args.start_date:
         extracted_numbers = re.findall(date_pattern, args.start_date)
@@ -75,14 +75,16 @@ def process_date_args(args: argparse.Namespace) -> DatesData:
             day, month, year_last_two_digits = [int(i) for i in extracted_numbers[0]]
             year = CURRENT_MILLENIUM + year_last_two_digits
             end_date = dt.date(year, month, day)
-            d = DatesData(title=f"{start_date.strftime('%d-%m-%y')} -> {end_date.strftime('%d-%m-%y')}",
-                          daterange=get_date_range(start_date, end_date))
+            daterange_from_args = DateRange(
+                title=f"{start_date.strftime('%d-%m-%y')} -> {end_date.strftime('%d-%m-%y')}",
+                daterange=get_date_range(start_date, end_date))
 
         else:
-            d = DatesData(title=start_date.strftime('%d-%m-%y'), daterange=get_date_range(start_date, start_date))
+            daterange_from_args = DateRange(title=start_date.strftime('%d-%m-%y'),
+                                            daterange=get_date_range(start_date, start_date))
 
     else:
         logger.error('Invalid arguments. See -h for usage.')
         exit()
 
-    return d
+    return daterange_from_args
