@@ -3,7 +3,7 @@ import datetime as dt
 from dataclasses import dataclass
 
 @dataclass
-class DateRange:
+class DateRangeContainer:
     title: str
     daterange: Iterator[dt.date]
 
