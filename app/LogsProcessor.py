@@ -1,28 +1,17 @@
 import logging
-from typing import List, Iterator, Tuple
+from typing import List, Tuple
 import datetime as dt
 import re
 from pathlib import Path
+from app.exceptions import *
 
 from app.TimeLog import TimeLog
-from app.helpers import DateRangeContainer
+from app.DateRangeContainer import DateRangeContainer
 
 logger = logging.getLogger(__name__)
 
 times_pattern = re.compile(r"(\d?\d):(\d?\d)")
 categories_pattern = re.compile(r"([a-z]+)")
-
-
-class BadLineError(Exception):
-    pass
-
-
-class EmptyLineError(Exception):
-    pass
-
-
-class InvalidTimelogError(Exception):
-    pass
 
 
 class LogsProcessor:

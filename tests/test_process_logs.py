@@ -1,8 +1,9 @@
 import pytest
 import datetime as dt
 
-from app.process_logs import LogsProcessor, InvalidTimelogError
-from app.helpers import get_date_range, DateRangeContainer
+from app.LogsProcessor import LogsProcessor, InvalidTimelogError
+from app.helpers import get_date_range
+from app.DateRangeContainer import DateRangeContainer
 from app.TimeLog import TimeLog
 
 

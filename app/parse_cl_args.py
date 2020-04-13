@@ -3,6 +3,7 @@ import logging
 import re
 
 from app.helpers import *
+from app.DateRangeContainer import DateRangeContainer
 logger = logging.getLogger(__name__)
 
 CURRENT_MILLENIUM = 2000

@@ -1,5 +1,5 @@
 from app.parse_cl_args import get_args, process_date_args
-from app.process_logs import LogsProcessor
+from app.LogsProcessor import LogsProcessor
 import sys
 import logging
 
