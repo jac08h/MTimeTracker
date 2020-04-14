@@ -4,6 +4,7 @@ import datetime as dt
 import re
 from pathlib import Path
 from app.exceptions import *
+import pandas as pd
 
 from app.TimeLog import TimeLog
 from app.DateRangeContainer import DateRangeContainer
@@ -88,3 +89,16 @@ class LogsProcessor:
 
         logger.info(f"Number of logs processed: {logs_processed}")
         return all_logs
+
+    def create_df(self, logs: List[TimeLog]) -> pd.DataFrame:
+        columns = ['date', 'time_start', 'time_end', 'categories', 'duration']
+
+        logs_list_for_df = []
+        for log in logs:
+            logs_list_for_df.append([log.date, log.start, log.end, ','.join(log.categories), log.duration])
+
+        logs_df = pd.DataFrame(logs_list_for_df, columns=columns)
+        logs_df['date'] = pd.to_datetime(logs_df['date'])
+        # time_start and time_end are converted to datetime implicitly, so is duration to timedelta
+
+        return logs_df

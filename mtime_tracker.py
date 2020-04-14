@@ -10,10 +10,12 @@ def main():
                         handlers=[logging.StreamHandler()]
                         )
     args = get_args(sys.argv[1:])
+    print(args)
     date_range = process_date_args(args)
     logs_processor = LogsProcessor(date_range, args.directory)
     logs = logs_processor.get_timelogs()
-    print(logs)
+    logs_df = logs_processor.create_df(logs)
+    print(logs_df.dtypes)
 
 
 if __name__ == '__main__':
