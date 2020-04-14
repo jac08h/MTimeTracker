@@ -34,13 +34,22 @@ class LogsProcessor:
                     new_time_log = TimeLog(date=date, start=dt.datetime.combine(date, start_time),
                                            end=dt.datetime.combine(date, end_time), categories=categories)
                     time_logs.append(new_time_log)
-                except BadLineError:
-                    logger.error(f"{filename}: Invalid logfile entry: [{line}]. Exiting.")
-                    raise InvalidTimelogError
                 except EmptyLineError:
                     pass
+                except LessThanMinimalDurationError:
+                    self.log_line_error('Invalid duration', line, filename)
+                    raise InvalidTimelogError
+                except InvalidTimeError:
+                    self.log_line_error('Invalid time', line, filename)
+                    raise InvalidTimelogError
+                except BadLineError:
+                    self.log_line_error('Invalid log file entry', line, filename)
+                    raise InvalidTimelogError
 
         return time_logs
+
+    def log_line_error(self, msg: str, line: str, filename: str):
+        logger.error(f"{msg}: `{line.strip()}`  ({filename})")
 
     def get_filename(self, date: dt.date) -> str:
         logs_directory = Path(self.logs_directory)
@@ -60,8 +69,12 @@ class LogsProcessor:
             times = re.findall(times_pattern, line)
             start_hour, start_minute = [int(i) for i in times[0]]
             end_hour, end_minute = [int(i) for i in times[1]]
-            start_time = dt.time(hour=start_hour, minute=start_minute)
-            end_time = dt.time(hour=end_hour, minute=end_minute)
+            try:
+                start_time = dt.time(hour=start_hour, minute=start_minute)
+                end_time = dt.time(hour=end_hour, minute=end_minute)
+            except ValueError:
+                raise InvalidTimeError
+
             categories = re.findall(categories_pattern, line)
             if len(categories) > 0:
                 return start_time, end_time, categories
@@ -76,16 +89,19 @@ class LogsProcessor:
 
     def get_timelogs(self) -> List[TimeLog]:
         all_logs = []
-        logs_processed = 0
+        logs_correct = 0
+        logs_invalid = 0
         for date in self.daterange:
             try:
                 new_logs = self.get_timelogs_from_date(date)
                 all_logs += new_logs
-                logs_processed += 1
+                logs_correct += 1
             except FileNotFoundError:
                 pass
+            except InvalidTimelogError:
+                logs_invalid += 1
 
-        logger.info(f"Number of logs processed: {logs_processed}")
+        logger.info(f"Correct logs: {logs_correct}  Invalid logs: {logs_invalid}")
         return all_logs
 
     def create_df(self, logs: List[TimeLog]) -> pd.DataFrame:
