@@ -3,7 +3,7 @@ import logging
 import re
 
 from app.helpers import *
-from app.DateRangeContainer import DateRangeContainer
+
 logger = logging.getLogger(__name__)
 
 CURRENT_MILLENIUM = 2000
@@ -23,22 +23,22 @@ def get_args(args) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
-def process_date_args(args: argparse.Namespace) -> DateRangeContainer:
+def daterange_from_cl_args(args: argparse.Namespace) -> Iterator[dt.date]:
     today = dt.date.today()
     if args.today:
-        daterange_from_args = DateRangeContainer(title='Today', daterange=get_date_range(today, today))
+        daterange = get_date_range(today, today)
 
     elif args.this_week:
         last_monday = get_last_monday(today)
-        daterange_from_args = DateRangeContainer(title='This Week', daterange=get_date_range(last_monday, today))
+        daterange = get_date_range(last_monday, today)
 
     elif args.this_month:
         first_in_month = dt.date(year=today.year, month=today.month, day=1)
-        daterange_from_args = DateRangeContainer(title='This Month', daterange=get_date_range(first_in_month, today))
+        daterange = get_date_range(first_in_month, today)
 
     elif args.this_year:
         first_in_year = dt.date(year=today.year, month=1, day=1)
-        daterange_from_args = DateRangeContainer(title='This Year', daterange=get_date_range(first_in_year, today))
+        daterange = get_date_range(first_in_year, today)
 
     elif args.start_date:
         extracted_numbers = re.findall(date_pattern, args.start_date)
@@ -51,16 +51,13 @@ def process_date_args(args: argparse.Namespace) -> DateRangeContainer:
             day, month, year_last_two_digits = [int(i) for i in extracted_numbers[0]]
             year = CURRENT_MILLENIUM + year_last_two_digits
             end_date = dt.date(year, month, day)
-            daterange_from_args = DateRangeContainer(
-                title=f"{start_date.strftime('%d-%m-%y')} -> {end_date.strftime('%d-%m-%y')}",
-                daterange=get_date_range(start_date, end_date))
+            daterange = get_date_range(start_date, end_date)
 
         else:
-            daterange_from_args = DateRangeContainer(title=start_date.strftime('%d-%m-%y'),
-                                                     daterange=get_date_range(start_date, start_date))
+            daterange = get_date_range(start_date, start_date)
 
     else:
         logger.error('Invalid arguments. See -h for usage.')
         exit()
 
-    return daterange_from_args
+    return daterange

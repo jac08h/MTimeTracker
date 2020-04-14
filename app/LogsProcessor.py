@@ -1,5 +1,5 @@
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Iterator
 import datetime as dt
 import re
 from pathlib import Path
@@ -7,7 +7,6 @@ from app.exceptions import *
 import pandas as pd
 
 from app.TimeLog import TimeLog
-from app.DateRangeContainer import DateRangeContainer
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +15,8 @@ categories_pattern = re.compile(r"([a-z]+)")
 
 
 class LogsProcessor:
-    def __init__(self, daterange_container: DateRangeContainer, logs_directory: str):
-        self.title = daterange_container.title
-        self.daterange = daterange_container.daterange
+    def __init__(self, daterange: Iterator[dt.date], logs_directory: str):
+        self.daterange = daterange
         self.logs_directory = logs_directory
 
     def get_timelogs_from_date(self, date: dt.date) -> List[TimeLog]:
