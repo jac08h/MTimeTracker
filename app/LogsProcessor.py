@@ -3,10 +3,10 @@ from typing import List, Tuple, Iterator
 import datetime as dt
 import re
 from pathlib import Path
-from app.exceptions import *
 import pandas as pd
 
 from app.TimeLog import TimeLog
+from app.exceptions import *
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +63,7 @@ class LogsProcessor:
 
         Raises:
              BadLineError - Generic line error
+             InvalidTimeError
              EmptyLineError
         """
         try:
