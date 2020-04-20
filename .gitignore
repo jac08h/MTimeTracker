@@ -4,5 +4,4 @@ __pycache__/
 notes.txt
 STRUCTURE.md
 time_logs/
-*.ipynb
 .ipynb_checkpoints
