@@ -11,7 +11,7 @@ from app.exceptions import *
 logger = logging.getLogger(__name__)
 
 times_pattern = re.compile(r"(\d?\d):(\d?\d)")
-categories_pattern = re.compile(r"([a-z]+)")
+categories_pattern = re.compile(r"([A-Za-z]+)")
 
 
 class LogsProcessor:

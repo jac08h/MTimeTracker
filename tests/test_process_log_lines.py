@@ -13,12 +13,35 @@ logs_processor = LogsProcessor(dummy_daterange, dummy_directory)
 
 
 class TestProcessLogLinesCorrect:
-    def test_bunch_of_correct_lines(self):
+    def test_bunch_of_normal_lines(self):
         lines_and_representations = {
             "10:12 - 10:40 - programming": (dt.time(hour=10, minute=12), dt.time(hour=10, minute=40), ['programming']),
             "09:21 - 13:12 - running, exercise": (
                 dt.time(hour=9, minute=21), dt.time(hour=13, minute=12), ['running', 'exercise']),
             "21:12 - 22:42 . programming": (dt.time(hour=21, minute=12), dt.time(hour=22, minute=42), ['programming'])
+        }
+        for line, representation in lines_and_representations.items():
+            assert logs_processor.process_logfile_line(line) == representation
+
+    def test_all_caps(self):
+        lines_and_representations = {
+            "10:12 - 10:40 - PROGRAMMING": (dt.time(hour=10, minute=12), dt.time(hour=10, minute=40), ['PROGRAMMING']),
+            "09:21 - 13:12 - SO": (dt.time(hour=9, minute=21), dt.time(hour=13, minute=12), ["SO"]),
+        }
+        for line, representation in lines_and_representations.items():
+            assert logs_processor.process_logfile_line(line) == representation
+
+    def test_capitalized(self):
+        lines_and_representations = {
+            "10:12 - 10:40 - Programming": (dt.time(hour=10, minute=12), dt.time(hour=10, minute=40), ['Programming']),
+            "09:21 - 13:12 - StackOverflow": (dt.time(hour=9, minute=21), dt.time(hour=13, minute=12), ["StackOverflow"]),
+        }
+        for line, representation in lines_and_representations.items():
+            assert logs_processor.process_logfile_line(line) == representation
+
+    def test_mixed_capitalization(self):
+        lines_and_representations = {
+            "10:12 - 10:40 - Programming, personal": (dt.time(hour=10, minute=12), dt.time(hour=10, minute=40), ['Programming', 'personal']),
         }
         for line, representation in lines_and_representations.items():
             assert logs_processor.process_logfile_line(line) == representation
