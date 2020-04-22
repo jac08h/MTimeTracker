@@ -4,4 +4,6 @@ __pycache__/
 notes.txt
 STRUCTURE.md
 time_logs/
+
 .ipynb_checkpoints
+playground.ipynb

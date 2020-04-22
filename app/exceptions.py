@@ -16,3 +16,6 @@ class EmptyLineError(Exception):
 
 class InvalidTimelogError(Exception):
     pass
+
+class InvalidTimeUnitError(Exception):
+    pass
